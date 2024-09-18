@@ -42,7 +42,7 @@ from tqdm import tqdm
 import warnings
 warnings.filterwarnings("ignore")
 
-"""# Required variable Initilizations"""
+# Required variable Initilizations
 
 label_encoder = LabelEncoder()
 
@@ -111,7 +111,7 @@ def render_images(images_data, image_labels, class_categories, image_count=5):
 
 render_images(train_images, train_image_labels, class_categories)
 
-"""# **Combining all train, test and validation datasets into one**"""
+#Combining all train, test and validation datasets into one
 
 def load_images_from_folder(source_folders, file_names, is_grayscale = False):
     images = []
@@ -148,7 +148,7 @@ image_data = my_image_data[0]
 X_train_with_val, X_test, y_train_with_val, y_test = train_test_split(image_data, categorical_labels, test_size=0.2, random_state=42)
 X_train, X_val, y_train, y_val = train_test_split(X_train_with_val, y_train_with_val, test_size=0.25, random_state=42)
 
-"""# **CNN**"""
+#CNN
 
 param_grid = {
     'optimizer': ['adam', 'rmsprop'],
@@ -199,8 +199,6 @@ for epochs in param_grid['epochs']:
             early_stopping = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
             reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.2, patience=10, min_lr=1e-6)
 
-
-            # Data augmentation
             train_datagen = ImageDataGenerator(
                 rotation_range=20,
                 width_shift_range=0.2,
@@ -213,13 +211,7 @@ for epochs in param_grid['epochs']:
             )
 
             train_generator = train_datagen.flow(X_train, y_train, batch_size=batch_size)
-            # val_generator = train_datagen.flow(val_images_normalized, val_image_lables, batch_size=32)
-
-            # Train the model with data augmentation
             history = model.fit(train_generator, validation_data=(X_val, y_val), epochs=epochs, callbacks=[early_stopping, reduce_lr], class_weight=class_weights_dict)
-
-            # Evaluate the model
-
 
             config = f'epochs={epochs}, optimizer={optimizer}, batch_size={batch_size}'
 
@@ -228,9 +220,6 @@ for epochs in param_grid['epochs']:
             y_pred = model.predict(X_test)
             y_pred_classes = np.argmax(y_pred, axis=1)
             y_true = np.argmax(y_test, axis=1)
-            # class_labels = list(test_generator.class_indices.keys())
-
-            # Generate classification report
             report = classification_report(y_true, y_pred_classes)
             print(report)
 
@@ -241,33 +230,20 @@ for epochs in param_grid['epochs']:
                 highest_accuracy = report_dict['accuracy']
                 deep_neural_network_results['CNN'] = report_dict['accuracy']
 
-# Calculate accuracy
 accuracy = accuracy_score(CNN_classes, CNN_pred_classes)
 
-# Calculate precision
 precision = precision_score(CNN_classes, CNN_pred_classes)
 
-# Calculate recall
 recall = recall_score(CNN_classes, CNN_pred_classes)
 
-# Calculate F1 score
 f1 = f1_score(CNN_classes, CNN_pred_classes)
 
-# Print the results
 print(f"Accuracy: {accuracy:.2f}")
 print(f"Precision: {precision:.2f}")
 print(f"Recall: {recall:.2f}")
 print(f"F1 Score: {f1:.2f}")
 
-"""# Dense Net"""
-
-# image_data_color = load_images_from_folder(dataset_paths, class_categories, is_grayscale=False)
-
-# image_labels_encoded = label_encoder.fit_transform(image_data_color[1])
-# categorical_labels = to_categorical(image_labels_encoded, num_classes=2)
-
-# X_train_with_val, X_test, y_train_with_val, y_test = train_test_split(image_data_color[0] , categorical_labels, test_size=0.2, random_state=42)
-# X_train, X_val, y_train, y_val = train_test_split(X_train_with_val, y_train_with_val, test_size=0.25, random_state=42)
+# Dense Net
 
 DenseNet = tf.keras.applications.DenseNet121(include_top=False,
                               weights='imagenet',
@@ -297,40 +273,32 @@ print(f'Test accuracy: {test_acc}')
 densenet_prediction_result = dense_model.predict(X_test)
 densenet_predicted_classes = np.argmax(densenet_prediction_result, axis=1)
 densenet_classes = np.argmax(y_test, axis=1)
-# class_labels = list(test_generator.class_indices.keys())
 
-# Generate classification report
 densenet_report = classification_report(densenet_classes, densenet_predicted_classes)
 print(densenet_report)
 
 densenet_report_dict = classification_report(densenet_classes, densenet_predicted_classes, output_dict=True)
 deep_neural_network_results['Dense Net'] = densenet_report_dict['accuracy']
 
-# Calculate accuracy
 accuracy = accuracy_score(densenet_classes, densenet_predicted_classes)
 
-# Calculate precision
 precision = precision_score(densenet_classes, densenet_predicted_classes)
 
-# Calculate recall
 recall = recall_score(densenet_classes, densenet_predicted_classes)
 
-# Calculate F1 score
 f1 = f1_score(densenet_classes, densenet_predicted_classes)
 
-# Print the results
 print(f"Accuracy: {accuracy:.2f}")
 print(f"Precision: {precision:.2f}")
 print(f"Recall: {recall:.2f}")
 print(f"F1 Score: {f1:.2f}")
 
-"""# Efficient Net"""
+# Efficient Net
 
 efficientnet = EfficientNetB0(include_top=False,
                               weights='imagenet',
                               input_shape=(64, 64, 3))
 
-# Add custom layers on top of the pre-trained EfficientNet model
 efficientnet_model = Sequential([
     efficientnet,
     layers.GlobalAveragePooling2D(),
@@ -339,7 +307,6 @@ efficientnet_model = Sequential([
     layers.Dense(2, activation='softmax')
 ])
 
-# Display the model's architecture
 efficientnet_model.summary()
 
 
@@ -363,19 +330,14 @@ print(efficientnet_report)
 efficientnet_report_dict = classification_report(efficientnet_classes, efficientnet_predicted_classes, output_dict=True)
 deep_neural_network_results['Efficient Net'] = efficientnet_report_dict['accuracy']
 
-# Calculate accuracy
 accuracy = accuracy_score(efficientnet_classes, efficientnet_predicted_classes)
 
-# Calculate precision
 precision = precision_score(efficientnet_classes, efficientnet_predicted_classes)
 
-# Calculate recall
 recall = recall_score(efficientnet_classes, efficientnet_predicted_classes)
 
-# Calculate F1 score
 f1 = f1_score(efficientnet_classes, efficientnet_predicted_classes)
 
-# Print the results
 print(f"Accuracy: {accuracy:.2f}")
 print(f"Precision: {precision:.2f}")
 print(f"Recall: {recall:.2f}")
@@ -384,21 +346,17 @@ print(f"F1 Score: {f1:.2f}")
 cnn_model_names = list(deep_neural_network_results.keys())
 cnn_model_accuracies = list(deep_neural_network_results.values())
 
-# Plotting the bar chart
 plt.bar(cnn_model_names, cnn_model_accuracies)
 
-# Adding labels and title
 plt.xlabel('CNN Models')
 plt.ylabel('Model Accuracy')
 plt.title('CNN Models Accuracy Comparison')
 
-# Show the plot
 plt.show()
 
-"""# **Machine Learning Models**
+# Machine Learning Models
 
-## Feature extraction using HOG
-"""
+#Feature extraction using HOG
 
 def extract_features(images):
     feature_list = []
@@ -412,7 +370,7 @@ features = extract_features(image_data)
 
 X_train_hog, X_test_hog, y_train_hog, y_test_hog = train_test_split(features, image_labels_encoded, test_size=0.2, random_state=42)
 
-"""# **SVM**"""
+# SVM
 
 svc_tuning_params = {
     'C': [0.1, 1, 10],
@@ -425,32 +383,26 @@ svc_grid_search = GridSearchCV(svc_model, svc_tuning_params, refit=True, verbose
 
 svc_grid_search.fit(X_train_hog, y_train_hog)
 
-# Predict and evaluate
 svc_prediction = svc_grid_search.predict(X_test_hog)
 
 svc_report_dict = classification_report(y_test_hog, svc_prediction, target_names=label_encoder.classes_, output_dict=True)
 print(svc_report_dict)
 machine_learning_results['svc'] = svc_report_dict['accuracy']
 
-# Calculate accuracy
 accuracy = accuracy_score(y_test_hog, svc_prediction)
 
-# Calculate precision
 precision = precision_score(y_test_hog, svc_prediction)
 
-# Calculate recall
 recall = recall_score(y_test_hog, svc_prediction)
 
-# Calculate F1 score
 f1 = f1_score(y_test_hog, svc_prediction)
 
-# Print the results
 print(f"Accuracy: {accuracy:.2f}")
 print(f"Precision: {precision:.2f}")
 print(f"Recall: {recall:.2f}")
 print(f"F1 Score: {f1:.2f}")
 
-"""# **RandomForest Classifier**"""
+# RandomForest Classifier
 
 random_forest_tuning_params = {
     'n_estimators': [100, 150, 200],
@@ -464,7 +416,6 @@ random_forest_grid_search = GridSearchCV(random_forest_model, random_forest_tuni
 
 random_forest_grid_search.fit(X_train_hog, y_train_hog)
 
-# Predict and evaluate
 random_forest_prediction = random_forest_grid_search.predict(X_test_hog)
 random_forest_report = classification_report(y_test_hog, random_forest_prediction, target_names=label_encoder.classes_)
 print("Classification Report:\n", random_forest_report)
@@ -475,25 +426,20 @@ machine_learning_results['random_forest'] = random_forest_report_dict['accuracy'
 random_forest_report_dict = classification_report(y_test_hog, random_forest_prediction, target_names=label_encoder.classes_, output_dict=True)
 machine_learning_results['random_forest'] = random_forest_report_dict['accuracy']
 
-# Calculate accuracy
 accuracy = accuracy_score(y_test_hog, random_forest_prediction)
 
-# Calculate precision
 precision = precision_score(y_test_hog, random_forest_prediction)
 
-# Calculate recall
 recall = recall_score(y_test_hog, random_forest_prediction)
 
-# Calculate F1 score
 f1 = f1_score(y_test_hog, random_forest_prediction)
 
-# Print the results
 print(f"Accuracy: {accuracy:.2f}")
 print(f"Precision: {precision:.2f}")
 print(f"Recall: {recall:.2f}")
 print(f"F1 Score: {f1:.2f}")
 
-"""# **Decision Tree**"""
+# Decision Tree
 
 decision_tree_tuning_params = {
     'min_samples_split': [5, 10, 15],
@@ -507,7 +453,6 @@ decision_tree_grid_search = GridSearchCV(estimator=decision_tree_model, param_gr
                            cv=5, n_jobs=-1, verbose=2)
 decision_tree_grid_search.fit(X_train_hog, y_train_hog)
 
-# Predict and evaluate
 decision_tree_prediction = decision_tree_grid_search.predict(X_test_hog)
 
 decision_tree_report = classification_report(y_test_hog, decision_tree_prediction, target_names=label_encoder.classes_)
@@ -516,36 +461,28 @@ print("Classification Report:\n", decision_tree_report)
 decision_tree_report_dict = classification_report(y_test_hog, decision_tree_prediction, target_names=label_encoder.classes_, output_dict=True)
 machine_learning_results['decision_tree'] = decision_tree_report_dict['accuracy']
 
-# Calculate accuracy
 accuracy = accuracy_score(y_test_hog, decision_tree_prediction)
 
-# Calculate precision
 precision = precision_score(y_test_hog, decision_tree_prediction)
 
-# Calculate recall
 recall = recall_score(y_test_hog, decision_tree_prediction)
 
-# Calculate F1 score
 f1 = f1_score(y_test_hog, decision_tree_prediction)
 
-# Print the results
 print(f"Accuracy: {accuracy:.2f}")
 print(f"Precision: {precision:.2f}")
 print(f"Recall: {recall:.2f}")
 print(f"F1 Score: {f1:.2f}")
 
-"""## Machine model results comparison"""
+# Machine model results comparison
 
 model_names = list(machine_learning_results.keys())
 model_accuracies = list(machine_learning_results.values())
 
-# Plotting the bar chart
 plt.bar(model_names, model_accuracies)
 
-# Adding labels and title
 plt.xlabel('Machine Learning Models')
 plt.ylabel('Model Accuracy')
 plt.title('Machine Learning Models Accuracy Comparison')
 
-# Show the plot
 plt.show()
