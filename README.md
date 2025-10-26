@@ -6,22 +6,6 @@ The study compares the performance of multiple **deep learning** and **tradition
 
 The following sections describe the dataset preprocessing, model training process, transfer learning approaches, and evaluation of different classifiers including CNN, EfficientNetB0, DenseNet121, SVC, Random Forest, and Decision Tree.  
 
-# Project Setup
-
-```python
-# Load necessary libraries
-import numpy as np
-import pandas as pd
-import tensorflow as tf
-from tensorflow.keras import layers, models
-from tensorflow.keras.applications import EfficientNetB0, DenseNet121
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
-from sklearn.svm import SVC
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.tree import DecisionTreeClassifier
-
-
 
 ## 1. Data Preparation
 
